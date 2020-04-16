@@ -27,13 +27,11 @@ extract_archive()
 fetch_image()
 {
     case $APPNAME in
-    GToolkit)
-        # Fetch the latest image name.
-        LATEST_TAG=$(wget -O - https://dl.feenk.com/gt/GToolkit-latest-tag)
-
+    GlamorousToolkit)
         # Download and decompress the latest image
-        wget "-O$LATEST_TAG" "https://dl.feenk.com/gt/$LATEST_TAG"
-        unzip $LATEST_TAG -d .
+
+        wget https://github.com/feenkcom/gtoolkit/releases/latest/download/GT.zip -O image.zip
+        unzip image.zip 
         mv GToolkit-64-*/* .
         TEST_IMAGE_NAME=$(ls GToolkit-*.image)
         ;;

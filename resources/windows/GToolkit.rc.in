@@ -16,10 +16,10 @@ BEGIN
         BLOCK "040904E4"    // Lang=US English, CharSet=Windows Multilin
         BEGIN
             VALUE "CompanyName", "feenk.com\0"
-            VALUE "FileDescription", "GToolkit Virtual Machine\0"
+            VALUE "FileDescription", "GlamorousToolkit Virtual Machine\0"
             VALUE "FileVersion", "@VM_VERSION_FILEVERSION@"
             VALUE "LegalCopyright", "Copyright \251 https://github.com/opensmalltalk 1996-2016\0" // TODO: Check this field
-            VALUE "ProductName", "GToolkit\0"
+            VALUE "ProductName", "GlamorousToolkit\0"
             VALUE "ProductVersion", "@VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_PATCH@-@GIT_COMMIT_HASH@\0"
         END
     END

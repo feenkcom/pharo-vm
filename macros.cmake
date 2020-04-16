@@ -28,7 +28,7 @@ macro(get_platform_name VARNAME)
     endif()
 endmacro()
 
-macro(get_gtoolkit_library_platform PLATFORM_VAR LIBPREFIX_VAR LIBSUFFIX_VAR)
+macro(get_glamoroustoolkit_library_platform PLATFORM_VAR LIBPREFIX_VAR LIBSUFFIX_VAR)
     set(${LIBPREFIX_VAR} "lib")
     if(WIN)
         set(${PLATFORM_VAR} "windows")
@@ -92,9 +92,9 @@ macro(add_third_party_dependency NAME TARGETPATH)
     add_dependencies(${VM_EXECUTABLE_NAME} ${NAME})
 endmacro()
 
-macro(add_gtoolkit_platform_specific_library NAME URL TARGETPATH TARGETNAME)
-    if("${APPNAME}" STREQUAL "GToolkit")
-        get_gtoolkit_library_platform(PLATNAME LIBPREFIX LIBSUFFIX)
+macro(add_glamoroustoolkit_platform_specific_library NAME URL TARGETPATH TARGETNAME)
+    if("${APPNAME}" STREQUAL "GlamorousToolkit")
+        get_glamoroustoolkit_library_platform(PLATNAME LIBPREFIX LIBSUFFIX)
 
         add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/build/third-party/${TARGETNAME}"
             COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/build/third-party
@@ -114,12 +114,12 @@ macro(add_gtoolkit_platform_specific_library NAME URL TARGETPATH TARGETNAME)
 
 endmacro()
 
-macro(add_gtoolkit_third_party_dependency NAME TARGETPATH)
-    if("${APPNAME}" STREQUAL "GToolkit")
-        get_gtoolkit_library_platform(PLATNAME LIBPREFIX LIBSUFFIX)
+macro(add_glamoroustoolkit_third_party_dependency NAME TARGETPATH)
+    if("${APPNAME}" STREQUAL "GlamorousToolkit")
+        get_glamoroustoolkit_library_platform(PLATNAME LIBPREFIX LIBSUFFIX)
 
         message("Adding third-party libraries for ${PLATNAME}: ${NAME}")
-        add_gtoolkit_platform_specific_library(${NAME}
+        add_glamoroustoolkit_platform_specific_library(${NAME}
             "https://dl.feenk.com/${NAME}/${PLATNAME}/development/x86_64/${LIBPREFIX}${NAME}${LIBSUFFIX}"
             ${TARGETPATH} ${LIBPREFIX}${NAME}${LIBSUFFIX})
     endif()

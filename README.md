@@ -1,7 +1,7 @@
 # Headless OpenSmalltalk-VM for Pharo
 
-This is the branch of the Headless VM used for GToolkit. This branch is based on the Headless VM used for Pharo.
-This branch has the modifications required to run GToolkit in a true headless environment.
+This is the branch of the Headless VM used for GlamorousToolkit. This branch is based on the Headless VM used for Pharo.
+This branch has the modifications required to run GlamorousToolkit in a true headless environment.
 The image running on the VM is responsible of handling the UI and the events.
 
 The image includes a default implementation of the handling of UI through the use of SDL2.

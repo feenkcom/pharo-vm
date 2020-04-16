@@ -41,8 +41,8 @@ set(VM_FRONTEND_SOURCES_COMMON
 )
 
 set(VM_FRONTEND_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/win32Main.c)
-if("${APPNAME}" STREQUAL "GToolkit")
-    set(VM_FRONTEND_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/win32MainGToolkit.c)
+if("${APPNAME}" STREQUAL "GlamorousToolkit")
+    set(VM_FRONTEND_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/win32MainGlamorousToolkit.c)
 endif()
 
 set(VM_FRONTEND_SOURCES

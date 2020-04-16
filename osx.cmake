@@ -35,8 +35,8 @@ set_source_files_properties(
 )
 
 set(VM_FRONTEND_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/unixMain.c)
-if("${APPNAME}" STREQUAL "GToolkit")
-    set(VM_FRONTEND_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/macMainGToolkit.m)
+if("${APPNAME}" STREQUAL "GlamorousToolkit")
+    set(VM_FRONTEND_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/macMainGlamorousToolkit.m)
 endif()
 
 set(VM_FRONTEND_SOURCES
