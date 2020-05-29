@@ -6,10 +6,12 @@ cmake_policy(SET CMP0053 NEW)
 include(macros.cmake)
 
 set(VERSION_MAJOR 8)
-set(VERSION_MINOR 2)
-set(VERSION_PATCH 0)
+set(VERSION_MINOR 4)
+set(VERSION_PATCH 2)
 
 set(APPNAME Pharo CACHE STRING "VM Application name")
+
+find_package(PkgConfig REQUIRED)
 
 get_commit_hash(GIT_COMMIT_HASH)
 get_git_describe(GIT_DESCRIBE)
@@ -215,6 +217,7 @@ check_include_files(sys/ndir.h HAVE_SYS_NDIR_H)
 check_include_files(sys/dir.h HAVE_SYS_DIR_H)
 check_include_files(sys/filio.h HAVE_SYS_FILIO_H)
 check_include_files(sys/time.h HAVE_SYS_TIME_H)
+check_include_files(execinfo.h HAVE_EXECINFO_H)
 
 check_include_files(dlfcn.h HAVE_DLFCN_H)
 check_library_exists(dl dlopen "" HAVE_LIBDL)
@@ -241,7 +244,6 @@ add_custom_command(
   OUTPUT ${VMMAKER_OUTPUT_PATH}/VMMaker.image
   COMMAND ./pharo Pharo.image --save --quit ${CMAKE_CURRENT_SOURCE_DIR_TO_OUT}/scripts/installVMMaker.st ${CMAKE_CURRENT_SOURCE_DIR_TO_OUT}
   COMMAND ./pharo Pharo.image save VMMaker --delete-old
-  MAIN_DEPENDENCY ${VMMAKER_OUTPUT_PATH}/Pharo.image
   DEPENDS ${VMMAKER_OUTPUT_PATH}/Pharo.image
   WORKING_DIRECTORY ${VMMAKER_OUTPUT_PATH}
 COMMENT "Generating VMMaker image")
@@ -250,7 +252,7 @@ COMMENT "Generating VMMaker image")
 add_custom_command(
   OUTPUT ${VMSOURCEFILES}
   COMMAND ${VMMAKER_OUTPUT_PATH}/pharo ${VMMAKER_OUTPUT_PATH}/VMMaker.image eval \"PharoVMMaker generate: \#\'${FLAVOUR}\' outputDirectory: \'${CMAKE_CURRENT_BINARY_DIR_TO_OUT}\'\"
-  MAIN_DEPENDENCY ${VMMAKER_OUTPUT_PATH}/VMMaker.image
+  DEPENDS ${VMMAKER_OUTPUT_PATH}/VMMaker.image
   COMMENT "Generating VM files for flavour: ${FLAVOUR}")
 
 #Generating config file
@@ -263,6 +265,7 @@ message(STATUS "Resource Compiler: ${CMAKE_RC_COMPILER}")
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/semaphores
     ${CMAKE_CURRENT_BINARY_DIR}/build/include/
     ${CMAKE_CURRENT_BINARY_DIR}/build/include/pharovm/
     ${CMAKE_CURRENT_BINARY_DIR}/generated/vm/include
@@ -291,6 +294,8 @@ set(SUPPORT_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/parameters.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/fileDialogCommon.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/stringUtilities.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/imageAccess.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/semaphores/platformSemaphore.c
 )
 
 set(VM_SOURCES
@@ -321,17 +326,16 @@ include(plugins.cmake)
 # Handling Third party dependencies
 
 add_third_party_dependencies_per_platform()
+pkg_check_modules(OPENSSL openssl)
+pkg_check_modules(LIBSSH2 libssh2)
+pkg_check_modules(LIBGIT2 libgit2)
+
 
 # Selecting files to include in the package
 
 configure_installables(bin)
 
 install(FILES
-  ${CMAKE_CURRENT_SOURCE_DIR}/extracted/vm/include/common/sq.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/extracted/vm/include/common/sqMemoryAccess.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/extracted/vm/include/common/sqVirtualMachine.h
-  ${CMAKE_CURRENT_BINARY_DIR}/generated/vm/include/interp.h
-  ${CMAKE_CURRENT_BINARY_DIR}/generated/vm/include/vmCallback.h
   ${CMAKE_CURRENT_BINARY_DIR}/build/include/pharovm/config.h
   DESTINATION include/pharovm
   COMPONENT include)
@@ -339,6 +343,18 @@ install(FILES
 install(
     DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/pharovm"
     DESTINATION include
+    COMPONENT include
+    FILES_MATCHING PATTERN *.h)
+
+install(
+    DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/extracted/vm/include/common/"
+    DESTINATION include/pharovm
+    COMPONENT include
+    FILES_MATCHING PATTERN *.h)
+
+install(
+    DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/generated/vm/include/"
+    DESTINATION include/pharovm
     COMPONENT include
     FILES_MATCHING PATTERN *.h)
 

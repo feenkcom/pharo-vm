@@ -63,24 +63,26 @@ macro(get_full_platform_name VARNAME)
     endif()
 endmacro()
 
+macro(get_full_platform_name_with_osx VARNAME)
 
-macro(add_third_party_dependency NAME TARGETPATH)
-
-    get_platform_name(PLATNAME)
-
-    if(${ARGC} GREATER 2)
-        set(DOWNLOAD_URL "${ARGV2}")
+    if(SIZEOF_VOID_P EQUAL 8)
+        set(ARCH 64)
     else()
-        set(DOWNLOAD_URL "https://files.pharo.org/vm/pharo-spur64/${PLATNAME}/third-party/${NAME}.zip")
+        set(ARCH 32)
     endif()
 
-    message("Adding third-party libraries for ${PLATNAME}: ${NAME}")
+    if(WIN)
+        set(${VARNAME} "win${ARCH}")
+    else()
+        if(OSX)
+            set(${VARNAME} "osx${ARCH}")
+        else()
+            set(${VARNAME} "linux${ARCH}")
+        endif()
+    endif()
+endmacro()
 
-    add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/build/third-party/${NAME}.zip"
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/build/third-party
-        COMMAND ${CMAKE_COMMAND} -E chdir ${CMAKE_CURRENT_BINARY_DIR}/build/third-party wget --no-check-certificate "${DOWNLOAD_URL}"
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-
+macro(do_decompress_thirdparty NAME TARGETPATH)
     add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/build/third-party/${NAME}.done"
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/${TARGETPATH}
         COMMAND ${CMAKE_COMMAND} -E chdir ${CMAKE_CURRENT_BINARY_DIR}/build/third-party unzip -o "${NAME}.zip" -d ${CMAKE_CURRENT_BINARY_DIR}/${TARGETPATH}
@@ -123,6 +125,35 @@ macro(add_glamoroustoolkit_third_party_dependency NAME TARGETPATH)
             "https://dl.feenk.com/${NAME}/${PLATNAME}/development/x86_64/${LIBPREFIX}${NAME}${LIBSUFFIX}"
             ${TARGETPATH} ${LIBPREFIX}${NAME}${LIBSUFFIX})
     endif()
+
+macro(add_third_party_dependency NAME TARGETPATH)
+
+    get_platform_name(PLATNAME)
+
+    message("Adding third-party libraries for ${PLATNAME}: ${NAME}")
+
+    add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/build/third-party/${NAME}.zip"
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/build/third-party
+        COMMAND ${CMAKE_COMMAND} -E chdir ${CMAKE_CURRENT_BINARY_DIR}/build/third-party wget --no-check-certificate "https://files.pharo.org/vm/pharo-spur64/${PLATNAME}/third-party/${NAME}.zip"
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
+	do_decompress_thirdparty(${NAME} ${TARGETPATH})
+endmacro()
+
+macro(add_third_party_dependency_from_jenkins LIBNAME TARGETPATH JOB BRANCH VERSION)
+    get_full_platform_name_with_osx(PLATNAME)
+
+	set(NAME ${LIBNAME}-${VERSION}-${PLATNAME})
+	set(URL "https://ci.inria.fr/pharo-ci-jenkins2/job/${JOB}/job/${BRANCH}/lastSuccessfulBuild/artifact/build/packages/${NAME}.zip")
+
+    message("Adding third-party libraries for ${PLATNAME} from Jenkins: ${NAME} (at ${URL})")
+    
+    add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/build/third-party/${NAME}.zip"
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/build/third-party
+        COMMAND ${CMAKE_COMMAND} -E chdir ${CMAKE_CURRENT_BINARY_DIR}/build/third-party wget --no-check-certificate "${URL}"
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
+	do_decompress_thirdparty(${NAME} ${TARGETPATH})
 endmacro()
 
 macro(get_commit_hash VARNAME)

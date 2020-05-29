@@ -413,8 +413,8 @@ static char * volatile p = 0;
 #endif
 
 #ifndef WIN64
-static sqInt min(int x, int y) { return (x < y) ? x : y; }
-static sqInt max(int x, int y) { return (x > y) ? x : y; }
+static long int min(long int x, long int y) { return (x < y) ? x : y; }
+static long int max(long int x, long int y) { return (x > y) ? x : y; }
 #endif
 
 static int getRedzoneSize()
@@ -508,13 +508,6 @@ EXPORT(int) __cdecl abortMessage(TCHAR *fmt, ...)
 }
 
 #endif
-
-
-int fileExists(const char *aPath){
-	struct stat st;
-
-	return stat(aPath, &st) == 0;
-}
 
 EXPORT(char*) getFullPath(char const *relativePath, char* fullPath, int fullPathSize){
 #ifdef WIN64

@@ -29,11 +29,8 @@ set(VM_FRONTEND_SOURCES
 
 
 macro(add_third_party_dependencies_per_platform)
-    add_third_party_dependency("PThreadedFFI-1.1.2-linux64" "build/vm" "https://github.com/feenkcom/threadedFFI-Plugin/releases/download/v0.6.1-binaries/PThreadedFFI-1.1.2-linux64.zip")
-    #add_third_party_dependency("libffi-3.3-rc0" "build/vm")
-    add_third_party_dependency("libgit2-0.25.1" "build/vm")
-    add_third_party_dependency("libssh2-1.7.0" "build/vm")
-    add_third_party_dependency("openssl-1.0.2q" "build/vm")
+    add_third_party_dependency("PThreadedFFI-1.3.1-linux64" "build/vm")
+    add_third_party_dependency("libffi-3.3-rc0" "build/vm")
     add_third_party_dependency("SDL2-2.0.7" "build/vm")
 endmacro()
 
@@ -54,6 +51,12 @@ macro(configure_installables INSTALL_COMPONENT)
       DESTINATION "lib"
       USE_SOURCE_PERMISSIONS
       COMPONENT ${INSTALL_COMPONENT})
+
+	install(
+	    DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/extracted/vm/include/unix/"
+	    DESTINATION include/pharovm
+	    COMPONENT include
+	    FILES_MATCHING PATTERN *.h)
 endmacro()
 
 macro(add_required_libs_per_platform)

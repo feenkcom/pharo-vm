@@ -74,9 +74,7 @@ macro(add_third_party_dependencies_per_platform)
     add_third_party_dependency("gcc-runtime-3.4" "build/vm")
     add_third_party_dependency("zlib-1.2.11-fixLibGit" "build/vm")
     add_third_party_dependency("SDL2-2.0.5" "build/vm")
-    add_third_party_dependency("PThreadedFFI-1.1.2-win64" "build/vm"
-        "https://github.com/feenkcom/threadedFFI-Plugin/releases/download/v0.6.1-binaries/PThreadedFFI-1.1.2-win64.zip")
-
+    add_third_party_dependency("PThreadedFFI-1.3.1-win64" "build/vm")
 endmacro()
 
 
@@ -100,6 +98,12 @@ macro(configure_installables INSTALL_COMPONENT)
             PATTERN *
             PATTERN *.dll EXCLUDE)
 
+	install(
+	    DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/extracted/vm/include/win/"
+	    DESTINATION include/pharovm
+	    COMPONENT include
+	    FILES_MATCHING PATTERN *.h)
+
 endmacro()
 
 macro(add_required_libs_per_platform)
@@ -107,8 +111,10 @@ macro(add_required_libs_per_platform)
    target_link_libraries(${VM_EXECUTABLE_CONSOLE_NAME} ${VM_LIBRARY_NAME})
 
    target_link_libraries(${VM_LIBRARY_NAME} winmm)
+   target_link_libraries(${VM_LIBRARY_NAME} Ws2_32)
    target_link_libraries(${VM_LIBRARY_NAME} DbgHelp)
    target_link_libraries(${VM_LIBRARY_NAME} Ole32)
    target_link_libraries(${VM_LIBRARY_NAME} comctl32)
    target_link_libraries(${VM_LIBRARY_NAME} uuid)
+   target_link_libraries(${VM_LIBRARY_NAME} pthread)
 endmacro()

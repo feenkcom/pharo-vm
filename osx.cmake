@@ -53,13 +53,9 @@ macro(add_third_party_dependencies_per_platform)
     add_third_party_dependency("pixman-0.34.0" ${LIBRARY_OUTPUT_DIRECTORY})
     add_third_party_dependency("cairo-1.15.4" ${LIBRARY_OUTPUT_DIRECTORY})
     add_third_party_dependency("freetype-2.9.1" ${LIBRARY_OUTPUT_DIRECTORY})
-    #add_third_party_dependency("libffi-3.3-rc0" ${LIBRARY_OUTPUT_DIRECTORY})
-    add_third_party_dependency("libgit2-0.25.1" ${LIBRARY_OUTPUT_DIRECTORY})
+    add_third_party_dependency("libffi-3.3-rc0" ${LIBRARY_OUTPUT_DIRECTORY})
     add_third_party_dependency("libpng-1.2.49" ${LIBRARY_OUTPUT_DIRECTORY})
-    add_third_party_dependency("libssh2-1.7.0" ${LIBRARY_OUTPUT_DIRECTORY})
-    add_third_party_dependency("openssl-1.0.2q" ${LIBRARY_OUTPUT_DIRECTORY})
-    add_third_party_dependency("PThreadedFFI-1.1.2-osx64" ${LIBRARY_OUTPUT_DIRECTORY}
-        "https://github.com/feenkcom/threadedFFI-Plugin/releases/download/v0.6.1-binaries/PThreadedFFI-1.1.2-osx64.zip")
+    add_third_party_dependency("PThreadedFFI-1.3.1-osx64" ${LIBRARY_OUTPUT_DIRECTORY})
     add_third_party_dependency("SDL2-2.0.7" ${LIBRARY_OUTPUT_DIRECTORY})
 
 endmacro()
@@ -72,6 +68,12 @@ macro(configure_installables INSTALL_COMPONENT)
     DESTINATION "./"
     USE_SOURCE_PERMISSIONS
     COMPONENT ${INSTALL_COMPONENT})
+
+	install(
+	    DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/extracted/vm/include/osx/"
+	    DESTINATION include/pharovm
+	    COMPONENT include
+	    FILES_MATCHING PATTERN *.h)
 endmacro()
 
 macro(add_required_libs_per_platform)
