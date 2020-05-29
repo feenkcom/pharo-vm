@@ -15,7 +15,7 @@ jobs:
                     - os: macos-latest
                       appname: GlamorousToolkit
                       vmExecutable: GlamorousToolkit
-                      platform: linux
+                      platform: mac
         env:
             APPNAME: ${{matrix.variant.appname}}
             VM_EXECUTABLE_NAME: ${{ matrix.variant.vmExecutable }}
@@ -23,14 +23,14 @@ jobs:
             SIGNING_IDENTITY: 'Developer ID Application: feenk gmbh (77664ZXL29)'
             PKG_CONFIG_PATH: ${GITHUB_WORKSPACE}/openssl-1.1.1g/lib/pkgconfig:${GITHUB_WORKSPACE}/libssh2/lib/pkgconfig:${GITHUB_WORKSPACE}/libgit2/lib/pkgconfig
         steps:
-            - name: Install dependencies
+            - name: Install dependencies (linux)
               if: matrix.variant.os == 'ubuntu-18.04'
               run: |
                 sudo apt-get update
                 sudo apt-get install uuid-dev
 
             - name: Install dependencies (mac)
-              if: matrix.variant.platform == 'mac'
+              if: matrix.variant.os == 'macos-latest'
               run: brew install pkg-config
 
             - uses: actions/checkout@v2
@@ -38,14 +38,14 @@ jobs:
             - name: Retrieve openssl libraries (ubuntu)
               if: matrix.variant.platform == 'linux'
               run: |
-                wget https://github.com/feenkcom/libssl_build/releases/download/v1.1.1g-ubuntu-18.04/libssl-dev-ubuntu-18.04.zip
-                unzip libssl-dev-ubuntu-18.04.zip
+                wget https://github.com/feenkcom/libssl_build/releases/download/v1.1.1g-linux/libssl-dev-linux.zip
+                unzip libssl-dev-linux.zip
 
             - name: Retrieve openssl libraries (mac)
               if: matrix.variant.platform == 'mac'
               run: |
-                wget https://github.com/feenkcom/libssl_build/releases/download/v1.1.1g-macos-latest/libssl-dev-macos-latest.zip
-                unzip libssl-dev-macos-latest.zip
+                wget https://github.com/feenkcom/libssl_build/releases/download/v1.1.1g-mac/libssl-dev-mac.zip
+                unzip libssl-dev-mac.zip
 
             - name: Retrieve libssh2 libraries (ubuntu)
               if: matrix.variant.platform == 'linux'
@@ -71,6 +71,24 @@ jobs:
                 wget https://github.com/feenkcom/libgit2_build/releases/download/v0.25.1-mac/libgit2-dev-mac.zip
                 unzip libgit2-dev-mac.zip
 
+            - name: Retrieve libPThreaded library (linux)
+              if: matrix.variant.platform == 'linux'
+              run: |
+                wget https://github.com/feenkcom/threadedFFI-Plugin/releases/download/libPThreaded-linux/libPThreaded-linux.zip
+                mkdir libPThreaded
+                cd libPThreaded
+                unzip ../libPThreaded-linux.zip
+                unzip PThreadedFFI-1.3.1-linux64.zip
+
+            - name: Retrieve libPThreaded library (mac)
+              if: matrix.variant.platform == 'mac'
+              run: |
+                wget https://github.com/feenkcom/threadedFFI-Plugin/releases/download/libPThreaded-mac/libPThreaded-mac.zip
+                mkdir libPThreaded
+                cd libPThreaded
+                unzip ../libPThreaded-mac.zip
+                unzip PThreadedFFI-1.3.1-osx64.zip
+
             - name: CMake configuration
               run: |
                 mkdir -p build
@@ -85,10 +103,10 @@ jobs:
             - name: Update libraries (mac)
               if: matrix.variant.platform == 'mac'
               run: |
-                find build/build/vm
-                cp -v openssl-1.1.1g/lib/lib*dylib* build/build/vm/Pharo.app/Contents/MacOS/Plugins/
-                cp -v libssh2/lib/lib*dylib* build/build/vm/Pharo.app/Contents/MacOS/Plugins/
-                cp -v libgit2/lib/lib*dylib* build/build/vm/Pharo.app/Contents/MacOS/Plugins/
+                cp -v openssl-1.1.1g/lib/lib*dylib* build/build/vm/${{ matrix.variant.appname }}.app/Contents/MacOS/Plugins/
+                cp -v libssh2/lib/lib*dylib* build/build/vm/${{ matrix.variant.appname }}.app/Contents/MacOS/Plugins/
+                cp -v libgit2/lib/lib*dylib* build/build/vm/${{ matrix.variant.appname }}.app/Contents/MacOS/Plugins/
+                cp -v libPThreaded/lib*dylib* build/build/vm/${{ matrix.variant.appname }}.app/Contents/MacOS/Plugins/
 
             - name: Update libraries (linux)
               if: matrix.variant.platform == 'linux'
@@ -96,6 +114,7 @@ jobs:
                 cp -v openssl-1.1.1g/lib/lib*so* build/build/vm/
                 cp -v libssh2/lib/lib*so* build/build/vm/
                 cp -v libgit2/lib/lib*so* build/build/vm/
+                cp -v libPThreaded/lib*so* build/build/vm/
 
             - name: Install
               run: |
@@ -143,6 +162,17 @@ jobs:
             - name: Install Cygwin
               run: .\scripts\installCygwin.ps1 "setup-x86_64.exe" x86_64
 
+            - name: Retrieve libPThreaded library
+              run: |
+                wget https://github.com/feenkcom/threadedFFI-Plugin/releases/download/libPThreaded-win64/libPThreaded-win64.zip
+                mkdir libPThreaded
+                cd libPThreaded
+                unzip ../libPThreaded-win64.zip
+                unzip PThreadedFFI-1.3.1-win64.zip
+                pwd
+                ls -l
+              shell: pwsh.exe -File .\scripts\runScriptInCygwinBash.ps1 {0}
+
             - name: CMake configuration
               run: |
                 mkdir -p build
@@ -150,10 +180,17 @@ jobs:
                 cmake .. -DAPPNAME=$APPNAME -DVM_EXECUTABLE_NAME=$VM_EXECUTABLE_NAME
               shell: pwsh.exe -File .\scripts\runScriptInCygwinBash.ps1 {0}
 
-            - name: make
+            - name: Build
               run: cd build && make
               shell: pwsh.exe -File .\scripts\runScriptInCygwinBash.ps1 {0}
-            - name: make install
+
+            - name: Update libraries
+              run: |
+                find build
+                cp -v libPThreaded/*.dll build/build/vm/
+              shell: pwsh.exe -File .\scripts\runScriptInCygwinBash.ps1 {0}
+
+            - name: Install
               run: cd build && make install
               shell: pwsh.exe -File .\scripts\runScriptInCygwinBash.ps1 {0}
 
