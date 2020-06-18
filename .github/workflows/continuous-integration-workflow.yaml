@@ -1,266 +1,268 @@
 name: Continuous integration
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - gt-headless
 
 jobs:
-    build-unixes:
-        name: Build Unixes
-        runs-on: ${{ matrix.variant.os }}
-        strategy:
-            matrix:
-                variant:
-                    - os: ubuntu-18.04
-                      appname: GlamorousToolkit
-                      vmExecutable: glamoroustoolkit
-                      platform: linux
-                    - os: macos-latest
-                      appname: GlamorousToolkit
-                      vmExecutable: GlamorousToolkit
-                      platform: mac
+  build-unixes:
+    name: Build Unixes
+    runs-on: ${{ matrix.variant.os }}
+    strategy:
+      matrix:
+        variant:
+          - os: ubuntu-18.04
+            appname: GlamorousToolkit
+            vmExecutable: glamoroustoolkit
+            platform: linux
+          - os: macos-latest
+            appname: GlamorousToolkit
+            vmExecutable: GlamorousToolkit
+            platform: mac
+    env:
+      APPNAME: ${{matrix.variant.appname}}
+      VM_EXECUTABLE_NAME: ${{ matrix.variant.vmExecutable }}
+      CERT: ${{ secrets.certificate }}
+      SIGNING_IDENTITY: "Developer ID Application: feenk gmbh (77664ZXL29)"
+      PKG_CONFIG_PATH: ${GITHUB_WORKSPACE}/openssl-1.1.1g/lib/pkgconfig:${GITHUB_WORKSPACE}/libssh2/lib/pkgconfig:${GITHUB_WORKSPACE}/libgit2/lib/pkgconfig
+    steps:
+      - name: Install dependencies (linux)
+        if: matrix.variant.os == 'ubuntu-18.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install uuid-dev
+
+      - name: Install dependencies (mac)
+        if: matrix.variant.os == 'macos-latest'
+        run: brew install pkg-config
+
+      - uses: actions/checkout@v2
+
+      - name: Retrieve openssl libraries (ubuntu)
+        if: matrix.variant.platform == 'linux'
+        run: |
+          wget https://github.com/feenkcom/libssl_build/releases/download/v1.1.1g-linux/libssl-dev-linux.zip
+          unzip libssl-dev-linux.zip
+
+      - name: Retrieve openssl libraries (mac)
+        if: matrix.variant.platform == 'mac'
+        run: |
+          wget https://github.com/feenkcom/libssl_build/releases/download/v1.1.1g-mac/libssl-dev-mac.zip
+          unzip libssl-dev-mac.zip
+
+      - name: Retrieve libssh2 libraries (ubuntu)
+        if: matrix.variant.platform == 'linux'
+        run: |
+          wget https://github.com/feenkcom/libssh2_build/releases/download/v.1.9.0-linux/libssh2-dev-linux.zip
+          unzip libssh2-dev-linux.zip
+
+      - name: Retrieve libssh2 libraries (mac)
+        if: matrix.variant.platform == 'mac'
+        run: |
+          wget https://github.com/feenkcom/libssh2_build/releases/download/v.1.9.0-mac/libssh2-dev-mac.zip
+          unzip libssh2-dev-mac.zip
+
+      - name: Retrieve libgit2 libraries (ubuntu)
+        if: matrix.variant.platform == 'linux'
+        run: |
+          wget https://github.com/feenkcom/libgit2_build/releases/download/v0.25.1-linux/libgit2-dev-linux.zip
+          unzip libgit2-dev-linux.zip
+
+      - name: Retrieve libgit2 libraries (mac)
+        if: matrix.variant.platform == 'mac'
+        run: |
+          wget https://github.com/feenkcom/libgit2_build/releases/download/v0.25.1-mac/libgit2-dev-mac.zip
+          unzip libgit2-dev-mac.zip
+
+      - name: Retrieve libPThreaded library (linux)
+        if: matrix.variant.platform == 'linux'
+        run: |
+          wget https://github.com/feenkcom/threadedFFI-Plugin/releases/download/libPThreaded-linux/libPThreaded-linux.zip
+          mkdir libPThreaded
+          cd libPThreaded
+          unzip ../libPThreaded-linux.zip
+          unzip PThreadedFFI-1.3.1-linux64.zip
+
+      - name: Retrieve libPThreaded library (mac)
+        if: matrix.variant.platform == 'mac'
+        run: |
+          wget https://github.com/feenkcom/threadedFFI-Plugin/releases/download/libPThreaded-mac/libPThreaded-mac.zip
+          mkdir libPThreaded
+          cd libPThreaded
+          unzip ../libPThreaded-mac.zip
+          unzip PThreadedFFI-1.3.1-osx64.zip
+
+      - name: CMake configuration
+        run: |
+          mkdir -p build
+          cd build
+          cmake .. -DAPPNAME=$APPNAME -DVM_EXECUTABLE_NAME=$VM_EXECUTABLE_NAME
+
+      - name: Build
+        run: |
+          cd build
+          cmake --build .
+
+      - name: Update libraries (mac)
+        if: matrix.variant.platform == 'mac'
+        run: |
+          cp -v openssl-1.1.1g/lib/lib*dylib* build/build/vm/${{ matrix.variant.appname }}.app/Contents/MacOS/Plugins/
+          cp -v libssh2/lib/lib*dylib* build/build/vm/${{ matrix.variant.appname }}.app/Contents/MacOS/Plugins/
+          cp -v libgit2/lib/lib*dylib* build/build/vm/${{ matrix.variant.appname }}.app/Contents/MacOS/Plugins/
+          cp -v libPThreaded/lib*dylib* build/build/vm/${{ matrix.variant.appname }}.app/Contents/MacOS/Plugins/
+
+      - name: Update libraries (linux)
+        if: matrix.variant.platform == 'linux'
+        run: |
+          cp -v openssl-1.1.1g/lib/lib*so* build/build/vm/
+          cp -v libssh2/lib/lib*so* build/build/vm/
+          cp -v libgit2/lib/lib*so* build/build/vm/
+          cp -v libPThreaded/lib*so* build/build/vm/
+
+      - name: Install
+        run: |
+          cd build
+          cmake --install .
+          make install
+
+      - name: Package artifacts
+        run: |
+          cd build
+          cmake --package .
+          make package
+          mkdir -p ../artifacts
+          cp -f build/packages/*.zip build/packages/*.sha1 ../artifacts
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v1
+        with:
+          name: build-artifacts
+          path: artifacts
+
+      - name: Run tests
+        continue-on-error: true
+        run: scripts/runTests.sh
+      - name: Upload test results
+        continue-on-error: true
+        uses: actions/upload-artifact@v1
+        with:
+          name: test-results
+          path: test-results
+
+  build-windows-cygwin:
+    name: Build Windows Cygwin
+    runs-on: windows-2016
+    strategy:
+      matrix:
+        variant:
+          - appname: GlamorousToolkit
+            vmExecutable: GlamorousToolkit
+    env:
+      APPNAME: ${{matrix.variant.appname}}
+      VM_EXECUTABLE_NAME: ${{ matrix.variant.vmExecutable }}
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Install Cygwin
+        run: .\scripts\installCygwin.ps1 "setup-x86_64.exe" x86_64
+
+      - name: Retrieve libPThreaded library
+        run: |
+          wget https://github.com/feenkcom/threadedFFI-Plugin/releases/download/libPThreaded-win64/libPThreaded-win64.zip
+          mkdir libPThreaded
+          cd libPThreaded
+          unzip ../libPThreaded-win64.zip
+          unzip PThreadedFFI-1.3.1-win64.zip
+          pwd
+          ls -l
+        shell: pwsh.exe -File .\scripts\runScriptInCygwinBash.ps1 {0}
+
+      - name: CMake configuration
+        run: |
+          mkdir -p build
+          cd build
+          cmake .. -DAPPNAME=$APPNAME -DVM_EXECUTABLE_NAME=$VM_EXECUTABLE_NAME
+        shell: pwsh.exe -File .\scripts\runScriptInCygwinBash.ps1 {0}
+
+      - name: Build
+        run: cd build && make
+        shell: pwsh.exe -File .\scripts\runScriptInCygwinBash.ps1 {0}
+
+      - name: Update libraries
+        run: |
+          find build
+          cp -v libPThreaded/*.dll build/build/vm/
+        shell: pwsh.exe -File .\scripts\runScriptInCygwinBash.ps1 {0}
+
+      - name: Install
+        run: cd build && make install
+        shell: pwsh.exe -File .\scripts\runScriptInCygwinBash.ps1 {0}
+
+      - name: Package artifacts
+        run: |
+          cd build
+          make package
+          mkdir -p ../artifacts
+          cp -f build/packages/*.zip build/packages/*.sha1 ../artifacts
+        shell: pwsh.exe -File .\scripts\runScriptInCygwinBash.ps1 {0}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v1
+        with:
+          name: build-artifacts
+          path: artifacts
+
+      - name: Run tests
+        continue-on-error: true
+        run: scripts/runTests.sh
+        shell: pwsh.exe -File .\scripts\runScriptInCygwinBash.ps1 {0}
+
+      - name: Upload test results
+        continue-on-error: true
+        uses: actions/upload-artifact@v1
+        with:
+          name: test-results
+          path: test-results
+
+  upload-release:
+    needs: [build-unixes, build-windows-cygwin]
+    name: Upload released artifacts
+    runs-on: ubuntu-18.04
+    env:
+      RELEASETAG: date +'%Y.%m.%d-%H:%M:%S'
+    steps:
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1.0.0
         env:
-            APPNAME: ${{matrix.variant.appname}}
-            VM_EXECUTABLE_NAME: ${{ matrix.variant.vmExecutable }}
-            CERT: ${{ secrets.certificate }}
-            SIGNING_IDENTITY: 'Developer ID Application: feenk gmbh (77664ZXL29)'
-            PKG_CONFIG_PATH: ${GITHUB_WORKSPACE}/openssl-1.1.1g/lib/pkgconfig:${GITHUB_WORKSPACE}/libssh2/lib/pkgconfig:${GITHUB_WORKSPACE}/libgit2/lib/pkgconfig
-        steps:
-            - name: Install dependencies (linux)
-              if: matrix.variant.os == 'ubuntu-18.04'
-              run: |
-                sudo apt-get update
-                sudo apt-get install uuid-dev
+          GITHUB_TOKEN: ${{ secrets.ACTIONS }}
+        with:
+          tag_name: v-${{ github.sha }}
+          release_name: Release ${{ github.sha }}
+          draft: false
+          prerelease: false
 
-            - name: Install dependencies (mac)
-              if: matrix.variant.os == 'macos-latest'
-              run: brew install pkg-config
+      - uses: actions/download-artifact@v1
+        with:
+          name: build-artifacts
 
-            - uses: actions/checkout@v2
+      - name: Create zip for upload
+        run: zip -qyr build-artifacts.zip build-artifacts
 
-            - name: Retrieve openssl libraries (ubuntu)
-              if: matrix.variant.platform == 'linux'
-              run: |
-                wget https://github.com/feenkcom/libssl_build/releases/download/v1.1.1g-linux/libssl-dev-linux.zip
-                unzip libssl-dev-linux.zip
-
-            - name: Retrieve openssl libraries (mac)
-              if: matrix.variant.platform == 'mac'
-              run: |
-                wget https://github.com/feenkcom/libssl_build/releases/download/v1.1.1g-mac/libssl-dev-mac.zip
-                unzip libssl-dev-mac.zip
-
-            - name: Retrieve libssh2 libraries (ubuntu)
-              if: matrix.variant.platform == 'linux'
-              run: |
-                wget https://github.com/feenkcom/libssh2_build/releases/download/v.1.9.0-linux/libssh2-dev-linux.zip
-                unzip libssh2-dev-linux.zip
-
-            - name: Retrieve libssh2 libraries (mac)
-              if: matrix.variant.platform == 'mac'
-              run: |
-                wget https://github.com/feenkcom/libssh2_build/releases/download/v.1.9.0-mac/libssh2-dev-mac.zip
-                unzip libssh2-dev-mac.zip
-
-            - name: Retrieve libgit2 libraries (ubuntu)
-              if: matrix.variant.platform == 'linux'
-              run: |
-                wget https://github.com/feenkcom/libgit2_build/releases/download/v0.25.1-linux/libgit2-dev-linux.zip
-                unzip libgit2-dev-linux.zip
-
-            - name: Retrieve libgit2 libraries (mac)
-              if: matrix.variant.platform == 'mac'
-              run: |
-                wget https://github.com/feenkcom/libgit2_build/releases/download/v0.25.1-mac/libgit2-dev-mac.zip
-                unzip libgit2-dev-mac.zip
-
-            - name: Retrieve libPThreaded library (linux)
-              if: matrix.variant.platform == 'linux'
-              run: |
-                wget https://github.com/feenkcom/threadedFFI-Plugin/releases/download/libPThreaded-linux/libPThreaded-linux.zip
-                mkdir libPThreaded
-                cd libPThreaded
-                unzip ../libPThreaded-linux.zip
-                unzip PThreadedFFI-1.3.1-linux64.zip
-
-            - name: Retrieve libPThreaded library (mac)
-              if: matrix.variant.platform == 'mac'
-              run: |
-                wget https://github.com/feenkcom/threadedFFI-Plugin/releases/download/libPThreaded-mac/libPThreaded-mac.zip
-                mkdir libPThreaded
-                cd libPThreaded
-                unzip ../libPThreaded-mac.zip
-                unzip PThreadedFFI-1.3.1-osx64.zip
-
-            - name: CMake configuration
-              run: |
-                mkdir -p build
-                cd build
-                cmake .. -DAPPNAME=$APPNAME -DVM_EXECUTABLE_NAME=$VM_EXECUTABLE_NAME
-
-            - name: Build
-              run: |
-                cd build
-                cmake --build .
-
-            - name: Update libraries (mac)
-              if: matrix.variant.platform == 'mac'
-              run: |
-                cp -v openssl-1.1.1g/lib/lib*dylib* build/build/vm/${{ matrix.variant.appname }}.app/Contents/MacOS/Plugins/
-                cp -v libssh2/lib/lib*dylib* build/build/vm/${{ matrix.variant.appname }}.app/Contents/MacOS/Plugins/
-                cp -v libgit2/lib/lib*dylib* build/build/vm/${{ matrix.variant.appname }}.app/Contents/MacOS/Plugins/
-                cp -v libPThreaded/lib*dylib* build/build/vm/${{ matrix.variant.appname }}.app/Contents/MacOS/Plugins/
-
-            - name: Update libraries (linux)
-              if: matrix.variant.platform == 'linux'
-              run: |
-                cp -v openssl-1.1.1g/lib/lib*so* build/build/vm/
-                cp -v libssh2/lib/lib*so* build/build/vm/
-                cp -v libgit2/lib/lib*so* build/build/vm/
-                cp -v libPThreaded/lib*so* build/build/vm/
-
-            - name: Install
-              run: |
-                cd build
-                cmake --install .
-                make install
-
-            - name: Package artifacts
-              run: |
-                cd build
-                cmake --package .
-                make package
-                mkdir -p ../artifacts
-                cp -f build/packages/*.zip build/packages/*.sha1 ../artifacts
-            - name: Upload artifacts
-              uses: actions/upload-artifact@v1
-              with:
-                  name: build-artifacts
-                  path: artifacts
-
-            - name: Run tests
-              continue-on-error: true
-              run: scripts/runTests.sh
-            - name: Upload test results
-              continue-on-error: true
-              uses: actions/upload-artifact@v1
-              with:
-                  name: test-results
-                  path: test-results
-
-    build-windows-cygwin:
-        name: Build Windows Cygwin
-        runs-on: windows-2016
-        strategy:
-            matrix:
-                variant:
-                    - appname: GlamorousToolkit
-                      vmExecutable: GlamorousToolkit
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1.0.1
         env:
-            APPNAME: ${{matrix.variant.appname}}
-            VM_EXECUTABLE_NAME: ${{ matrix.variant.vmExecutable }}
-        steps:
-            - uses: actions/checkout@v1
-
-            - name: Install Cygwin
-              run: .\scripts\installCygwin.ps1 "setup-x86_64.exe" x86_64
-
-            - name: Retrieve libPThreaded library
-              run: |
-                wget https://github.com/feenkcom/threadedFFI-Plugin/releases/download/libPThreaded-win64/libPThreaded-win64.zip
-                mkdir libPThreaded
-                cd libPThreaded
-                unzip ../libPThreaded-win64.zip
-                unzip PThreadedFFI-1.3.1-win64.zip
-                pwd
-                ls -l
-              shell: pwsh.exe -File .\scripts\runScriptInCygwinBash.ps1 {0}
-
-            - name: CMake configuration
-              run: |
-                mkdir -p build
-                cd build
-                cmake .. -DAPPNAME=$APPNAME -DVM_EXECUTABLE_NAME=$VM_EXECUTABLE_NAME
-              shell: pwsh.exe -File .\scripts\runScriptInCygwinBash.ps1 {0}
-
-            - name: Build
-              run: cd build && make
-              shell: pwsh.exe -File .\scripts\runScriptInCygwinBash.ps1 {0}
-
-            - name: Update libraries
-              run: |
-                find build
-                cp -v libPThreaded/*.dll build/build/vm/
-              shell: pwsh.exe -File .\scripts\runScriptInCygwinBash.ps1 {0}
-
-            - name: Install
-              run: cd build && make install
-              shell: pwsh.exe -File .\scripts\runScriptInCygwinBash.ps1 {0}
-
-            - name: Package artifacts
-              run: |
-                cd build
-                make package
-                mkdir -p ../artifacts
-                cp -f build/packages/*.zip build/packages/*.sha1 ../artifacts
-              shell: pwsh.exe -File .\scripts\runScriptInCygwinBash.ps1 {0}
-
-            - name: Upload artifacts
-              uses: actions/upload-artifact@v1
-              with:
-                  name: build-artifacts
-                  path: artifacts
-
-            - name: Run tests
-              continue-on-error: true
-              run: scripts/runTests.sh
-              shell: pwsh.exe -File .\scripts\runScriptInCygwinBash.ps1 {0}
-
-            - name: Upload test results
-              continue-on-error: true
-              uses: actions/upload-artifact@v1
-              with:
-                  name: test-results
-                  path: test-results
-
-    upload-release:
-        needs: [build-unixes, build-windows-cygwin]
-        name: Upload released artifacts
-        runs-on: ubuntu-18.04     
-        env:
-          RELEASETAG: date +'%Y.%m.%d-%H:%M:%S'      
-        steps:
-            - name: Create Release
-              id: create_release
-              uses: actions/create-release@v1.0.0
-              env:
-                GITHUB_TOKEN: ${{ secrets.ACTIONS }}
-              with:
-                tag_name: v-${{ github.sha }}
-                release_name: Release ${{ github.sha }}
-                draft: false
-                prerelease: false
-            
-            - uses: actions/download-artifact@v1
-              with:
-                name: build-artifacts
-
-            - name: Create zip for upload
-              run: zip -qyr build-artifacts.zip build-artifacts
-              
-            - name: Upload Release Asset
-              id: upload-release-asset 
-              uses: actions/upload-release-asset@v1.0.1
-              env:
-                GITHUB_TOKEN: ${{ secrets.ACTIONS }}
-              with:
-                upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-                asset_path: build-artifacts.zip
-                asset_name: build-artifacts.zip
-                asset_content_type: application/zip
-            - name: Trigger GlamorousToolkit job
-              uses: appleboy/jenkins-action@master
-              with:
-                url: "https://jenkins.feenk.com/"
-                user: "georgeganea@gmail.com"
-                token: ${{ secrets.JENKINS_TOKEN }}
-                job: "feenkcom/gtoolkit/master"
-
+          GITHUB_TOKEN: ${{ secrets.ACTIONS }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: build-artifacts.zip
+          asset_name: build-artifacts.zip
+          asset_content_type: application/zip
+      - name: Trigger GlamorousToolkit job
+        uses: appleboy/jenkins-action@master
+        with:
+          url: "https://jenkins.feenk.com/"
+          user: "georgeganea@gmail.com"
+          token: ${{ secrets.JENKINS_TOKEN }}
+          job: "feenkcom/gtoolkit/master"
 # Bump
