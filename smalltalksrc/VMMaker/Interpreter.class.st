@@ -3367,8 +3367,8 @@ Interpreter >> initializeInterpreter: bytesToShift [
 	globalSessionID := 0.
 	[globalSessionID = 0]
 		whileTrue: [globalSessionID := self
-						cCode: 'time(NULL) + ioMSecs()'
-						inSmalltalk: [(Random new next * SmallInteger maxVal) asInteger]].
+						cCode: '(time(NULL) + ioMSecs()) & 0x7FFFFFFF'
+						inSmalltalk: [(Random new next * (SmallInteger maxVal min: 16r7FFFFFFF)) asInteger]].
 	jmpDepth := 0.
 	jmpMax := MaxJumpBuf. "xxxx: Must match the definition of jmpBuf and suspendedCallbacks"
 	statQuickCheckForEvents := 0.
