@@ -128,7 +128,7 @@ jobs:
       - name: Package artifacts
         run: |
           cd build
-          cmake --package .
+          cmake --version
           make package
           mkdir -p ../artifacts
           cp -f build/packages/*.zip build/packages/*.sha1 ../artifacts
