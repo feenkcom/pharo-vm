@@ -26,6 +26,7 @@ void mtfsfi(unsigned long long fpscr)
 #endif
 
 static int loadPharoImage(const char* fileName);
+/* Avoid implicit declaration */
 extern void setMaxStacksToPrint(sqInt anInteger);
 
 EXPORT(int) vm_init(VMParameters* parameters) {
