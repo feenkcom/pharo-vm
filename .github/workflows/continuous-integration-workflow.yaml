@@ -94,7 +94,6 @@ jobs:
 
       - name: CMake configuration
         run: |
-          ls build
           rm -rfv build
           mkdir -p build
           cd build
