@@ -232,6 +232,14 @@ check_include_files(uuid.h HAVE_UUID_H)
 check_library_exists(uuid uuidgen "" HAVE_UUIDGEN)
 check_library_exists(uuid uuid_generate "" HAVE_UUID_GENERATE)
 
+file(WRITE "download_image.sh"
+	"if [ -e Pharo.image ]; then exit 0; fi\n"
+	"if [ -e VMMaker.image ]; then exit 0; fi\n"
+	"wget -O - https://get.pharo.org/64/80 | bash\n")
+
+file(WRITE "download_vm.sh"
+	"if [ ! -e pharo ]; then wget -O - https://get.pharo.org/64/vm80 | bash; fi")
+
 #Custom command that downloads a Pharo image and VM in ${VMMAKER_OUTPUT_PATH}
 add_custom_command(
   OUTPUT ${VMMAKER_OUTPUT_PATH}/Pharo.image ${VMMAKER_OUTPUT_PATH}/pharo
@@ -242,8 +250,8 @@ add_custom_command(
 
 add_custom_command(
   OUTPUT ${VMMAKER_OUTPUT_PATH}/VMMaker.image
-  COMMAND ./pharo Pharo.image --save --quit ${CMAKE_CURRENT_SOURCE_DIR_TO_OUT}/scripts/installVMMaker.st ${CMAKE_CURRENT_SOURCE_DIR_TO_OUT}
-  COMMAND ./pharo Pharo.image save VMMaker --delete-old
+  COMMAND ./pharo Pharo.image save VMMaker
+  COMMAND ./pharo VMMaker.image --save --quit ${CMAKE_CURRENT_SOURCE_DIR_TO_OUT}/scripts/installVMMaker.st ${CMAKE_CURRENT_SOURCE_DIR_TO_OUT}
   DEPENDS ${VMMAKER_OUTPUT_PATH}/Pharo.image
   WORKING_DIRECTORY ${VMMAKER_OUTPUT_PATH}
 COMMENT "Generating VMMaker image")
