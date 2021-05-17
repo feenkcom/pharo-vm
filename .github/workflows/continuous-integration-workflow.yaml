@@ -94,6 +94,8 @@ jobs:
 
       - name: CMake configuration
         run: |
+          ls build
+          rm -rfv build
           mkdir -p build
           cd build
           cmake .. -DAPPNAME=$APPNAME -DVM_EXECUTABLE_NAME=$VM_EXECUTABLE_NAME
