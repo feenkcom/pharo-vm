@@ -25,6 +25,7 @@ jobs:
       CERT: ${{ secrets.certificate }}
       SIGNING_IDENTITY: "Developer ID Application: feenk gmbh (77664ZXL29)"
       PKG_CONFIG_PATH: ${GITHUB_WORKSPACE}/openssl-1.1.1g/lib/pkgconfig:${GITHUB_WORKSPACE}/libssh2/lib/pkgconfig:${GITHUB_WORKSPACE}/libgit2/lib/pkgconfig
+      MACOSX_DEPLOYMENT_TARGET: 10.10
     steps:
       - name: Install dependencies (linux)
         if: matrix.variant.os == 'ubuntu-18.04'
