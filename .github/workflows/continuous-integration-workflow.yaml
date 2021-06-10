@@ -47,7 +47,7 @@ jobs:
           plutil -replace DTSDKName -string macosx${MACOSX_DEPLOYMENT_TARGET}internal $(xcode-select -p)/Platforms/MacOSX.platform/Info.plist
 
       - name: Install dependencies (mac)
-        if: matrix.variant.os == 'macos-latest'
+        if: runner.os == 'macOS'
         run: brew install pkg-config
       - uses: actions/checkout@v2
 
@@ -58,7 +58,7 @@ jobs:
           unzip libssl-dev-linux.zip
 
       - name: Retrieve openssl libraries (mac)
-        if: matrix.variant.platform == 'mac'
+        if: runner.os == 'macOS'
         run: |
           wget https://github.com/feenkcom/libssl_build/releases/download/v1.1.1g-mac/libssl-dev-mac.zip
           unzip libssl-dev-mac.zip
@@ -70,7 +70,7 @@ jobs:
           unzip libssh2-dev-linux.zip
 
       - name: Retrieve libssh2 libraries (mac)
-        if: matrix.variant.platform == 'mac'
+        if: runner.os == 'macOS'
         run: |
           wget https://github.com/feenkcom/libssh2_build/releases/download/v.1.9.0-mac/libssh2-dev-mac.zip
           unzip libssh2-dev-mac.zip
@@ -82,7 +82,7 @@ jobs:
           unzip libgit2-dev-linux.zip
 
       - name: Retrieve libgit2 libraries (mac)
-        if: matrix.variant.platform == 'mac'
+        if: runner.os == 'macOS'
         run: |
           wget https://github.com/feenkcom/libgit2_build/releases/download/v0.25.1-mac/libgit2-dev-mac.zip
           unzip libgit2-dev-mac.zip
@@ -97,7 +97,7 @@ jobs:
           unzip PThreadedFFI-1.3.1-linux64.zip
 
       - name: Retrieve libPThreaded library (mac)
-        if: matrix.variant.platform == 'mac'
+        if: runner.os == 'macOS'
         run: |
           wget https://github.com/feenkcom/threadedFFI-Plugin/releases/download/libPThreaded-mac/libPThreaded-mac.zip
           mkdir libPThreaded
@@ -118,7 +118,7 @@ jobs:
           cmake --build .
 
       - name: Update libraries (mac)
-        if: matrix.variant.platform == 'mac'
+        if: runner.os == 'macOS'
         run: |
           cp -v openssl-1.1.1g/lib/lib*dylib* build/build/vm/${{ matrix.variant.appname }}.app/Contents/MacOS/Plugins/
           cp -v libssh2/lib/lib*dylib* build/build/vm/${{ matrix.variant.appname }}.app/Contents/MacOS/Plugins/
