@@ -34,14 +34,6 @@ if ((CMAKE_HOST_UNIX) AND (${CMAKE_HOST_SYSTEM_NAME} MATCHES "CYGWIN*"))
   SET(CMAKE_SYSTEM_PROCESSOR x86_64)
 endif()
 
-
-#If in OSX, specify the deployment target
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  # See https://cmake.org/cmake/help/latest/variable/CMAKE_OSX_DEPLOYMENT_TARGET.html#variable:CMAKE_OSX_DEPLOYMENT_TARGET
-  # it must be specified before first project() or enable_language() invocations
-  set(CMAKE_OSX_DEPLOYMENT_TARGET '10.10')
-endif()
-
 project(PharoVM)
 
 set(FLAVOUR CoInterpreterWithQueueFFI CACHE STRING "The kind of VM to generate. Possible values: StackVM, CogVM, CoInterpreterWithQueueFFI")
