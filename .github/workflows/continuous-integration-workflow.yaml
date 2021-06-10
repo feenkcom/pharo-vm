@@ -32,12 +32,11 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install uuid-dev
+      
+      # In order to support older macOS we should install the corresponding SDK based on the previously defined MACOSX_DEPLOYMENT_TARGET
       - name: Set Up macOS
         if: runner.os == 'macOS'
         run: echo "GT_BUILD_SYSROOT=$(xcode-select -p)/Platforms/MacOSX.platform/Developer/SDKs/MacOSX${MACOSX_DEPLOYMENT_TARGET}.sdk" >> $GITHUB_ENV
-      - name: Install dependencies (mac)
-        if: matrix.variant.os == 'macos-latest'
-        run: brew install pkg-config
       - name: Install macOS SDK
         if: runner.os == 'macOS'
         run: |
@@ -47,6 +46,9 @@ jobs:
           plutil -replace MinimumSDKVersion -string ${MACOSX_DEPLOYMENT_TARGET} $(xcode-select -p)/Platforms/MacOSX.platform/Info.plist
           plutil -replace DTSDKName -string macosx${MACOSX_DEPLOYMENT_TARGET}internal $(xcode-select -p)/Platforms/MacOSX.platform/Info.plist
 
+      - name: Install dependencies (mac)
+        if: matrix.variant.os == 'macos-latest'
+        run: brew install pkg-config
       - uses: actions/checkout@v2
 
       - name: Retrieve openssl libraries (ubuntu)
