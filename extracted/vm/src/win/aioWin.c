@@ -507,6 +507,14 @@ EXPORT(long) aioPoll(long microSeconds){
 	}
 
 
+	/* AKG TEST: If this is a WAIT_TIMEOUT force individual handles to be checked.
+	 * On the assumption that the WaitForMultipleObjectsEx is failing due to glutin making 
+	 * the same call.
+	 */
+	if (returnValue == WAIT_TIMEOUT)
+		returnValue = WAIT_OBJECT_0 + 1;
+
+
 	if(returnValue == WAIT_TIMEOUT){
 		heartbeat_poll_exit(microSeconds);
 
