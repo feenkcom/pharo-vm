@@ -549,9 +549,10 @@ EXPORT(long) aioPoll(long microSeconds){
 
 	if(returnValue == WAIT_OBJECT_0){
 		ResetEvent(interruptEvent);
-	}else{
-		hasEvents = checkEventsInHandles(allHandles, size);
 	}
+/*	}else{ */
+		hasEvents = checkEventsInHandles(allHandles, size);
+/*	} */
 
 	free(waitingHandles);
 	free(allHandles);
