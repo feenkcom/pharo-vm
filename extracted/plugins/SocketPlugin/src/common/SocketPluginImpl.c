@@ -623,8 +623,8 @@ static void dataHandler(int fd, void *data, int flags)
       int n= recv(fd, (void *)buf, 1, MSG_OOB);
       if (n == 1) logTrace("socket: received OOB data: %02x\n", buf[0]);
     }
-  if (flags & AIO_R) { puts("---- Socket: read notify"); notify(pss, READ_NOTIFY); }
-  if (flags & AIO_W) { puts("---- Socket: write notify"); notify(pss, WRITE_NOTIFY); notify(pss, READ_NOTIFY); }
+  if (flags & AIO_R) { /* puts("---- Socket: read notify"); */ notify(pss, READ_NOTIFY); }
+  if (flags & AIO_W) { /* puts("---- Socket: write notify"); */ notify(pss, WRITE_NOTIFY); notify(pss, READ_NOTIFY); }
 }
 
 
