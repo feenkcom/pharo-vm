@@ -396,8 +396,6 @@ static HANDLE sliceWaitForMultipleObjects(HANDLE* allHandles, int initialIndex, 
 	}
 	sliceData->handles = handles;
 
-//	logTrace("Launching slice from %d size %d", initialIndex, sizeToProcess);
-
 	r = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) waitHandlesThreadFunction, sliceData, 0, NULL);
 
 	if(r)
@@ -499,24 +497,6 @@ EXPORT(long) aioPoll(long microSeconds){
 		CloseHandle(waitingHandles[i]);
 	}
 
-
-	/* AKG TEST: If this is a WAIT_TIMEOUT force individual handles to be checked.
-	 * On the assumption that the WaitForMultipleObjectsEx is failing due to glutin making 
-	 * the same call.
-	 */
-	if (returnValue == WAIT_TIMEOUT)
-		returnValue = WAIT_OBJECT_0 + 1;
-
-
-	if(returnValue == WAIT_TIMEOUT){
-		heartbeat_poll_exit(microSeconds);
-
-		free(waitingHandles);
-		free(allHandles);
-
-		return hasEvents;
-	}
-
 	if(returnValue == WAIT_FAILED){
 		int lastError = GetLastError();
 
@@ -536,16 +516,12 @@ EXPORT(long) aioPoll(long microSeconds){
 	heartbeat_poll_exit(microSeconds);
 
 	/*
-	 * If it is the first is the interrupt event that we use to break the poll.
-	 * If it is interrupted we need to clear the interrupt event
+	 * If interruptEvent was signalled (to interrupt the timeout) we need to clear it.
 	 */
-
 	if(returnValue == WAIT_OBJECT_0){
 		ResetEvent(interruptEvent);
 	}
-//	else{
-		hasEvents = checkEventsInHandles(allHandles, size);
-//	}
+	hasEvents = checkEventsInHandles(allHandles, size);
 
 	free(waitingHandles);
 	free(allHandles);
