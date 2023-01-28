@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SQ_NAMED_PRIMS_H_
+#define SQ_NAMED_PRIMS_H_
 
 #include "exportDefinition.h"
 
@@ -11,3 +12,5 @@ typedef struct {
 EXPORT(sqExport) vm_exports[];
 EXPORT(sqExport) os_exports[];
 EXPORT(sqExport*) pluginExports[];
+
+#endif // SQ_NAMED_PRIMS_H_
