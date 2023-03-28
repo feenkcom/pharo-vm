@@ -238,7 +238,7 @@ ioHighResClock(void)
 		https://github.com/google/benchmark/blob/v1.1.0/src/cycleclock.h#L116
 	 */
 #elif defined (_M_ARM64)
-    value = _ReadStatusReg (ARM64_PMCCNTR_EL0)
+    value = _ReadStatusReg (ARM64_PMCCNTR_EL0);
 #elif defined(_WIN32)
 	value = __rdtsc();
 #else
