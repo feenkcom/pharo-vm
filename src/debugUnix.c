@@ -494,7 +494,7 @@ void reportStackState(const char *msg, char *date, int printAll, ucontext_t *uap
 }
 
 EXPORT(void) printStatusAfterError(){
-	
+#ifndef __ANDROID__
 	ucontext_t uap;
 	
 	getcontext(&uap);
@@ -504,6 +504,7 @@ EXPORT(void) printStatusAfterError(){
 	doReport("VM Error", &uap);
 
 	errno = saved_errno;
+#endif
 }
 
 EXPORT(int) fprintf_impl(FILE * stream, const char * format, ... ){

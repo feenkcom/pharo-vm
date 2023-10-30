@@ -419,6 +419,12 @@ aioHandle(int fd, aioHandler handlerFn, int mask)
 		logWarn("aioHandle(%d): IGNORED - Negative FD", fd);
 		return;
 	}
+
+	if (fd >= FD_SETSIZE) {
+		fprintf(stderr, "Unable to handle sockets with fd >= %d\n", FD_SETSIZE);
+		exit(1);
+	}
+
 #undef _DO
 #define _DO(FLAG, TYPE)					\
     if (mask & FLAG) {					\
