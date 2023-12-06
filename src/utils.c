@@ -498,7 +498,9 @@ static long int min(long int x, long int y) { return (x < y) ? x : y; }
 
 static int getRedZoneSize()
 {
-#if defined(SIGPROF) /* cygwin */
+#if defined(__ANDROID__)
+    return 0;
+#elif defined(SIGPROF) /* cygwin */
 	struct sigaction handler_action, old;
 	handler_action.sa_sigaction = redZoneTestSigHandler;
 	handler_action.sa_flags = SA_NODEFER | SA_SIGINFO;
