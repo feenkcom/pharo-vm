@@ -7463,7 +7463,7 @@ StackInterpreter >> initStackPages [
 	 frame ID so putting the stack anywhere else can confuse the thread system."
 
 	<inline: true>
-	<var: #theStackMemory type: #'void *'>
+	<var: #theStackMemory type: #'char *'>
 	| stackPageBytes stackPagesBytes theStackMemory |
 	stackPageBytes := self stackPageByteSize.
 	stackPagesBytes := self computeStackZoneSize.
