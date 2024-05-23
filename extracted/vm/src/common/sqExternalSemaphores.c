@@ -173,9 +173,6 @@ signalSemaphoreWithIndex(sqInt index)
     sigprocmask(SIG_UNBLOCK, &blockedSignalSet, NULL);
 #endif
 
-	aioInterruptPoll();
-
-
 	return 1;
 }
 
