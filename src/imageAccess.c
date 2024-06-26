@@ -9,6 +9,14 @@
 #include <unistd.h>
 #endif
 
+#ifdef _WIN32
+    #ifndef _S_ISTYPE
+        #define _S_ISTYPE(mode, mask)  (((mode) & _S_IFMT) == (mask))
+        #define S_ISREG(mode) _S_ISTYPE((mode), _S_IFREG)
+        #define S_ISDIR(mode) _S_ISTYPE((mode), _S_IFDIR)
+    #endif
+#endif
+
 /*
  * The read and write function uses a 128kb chunk size.
  * It is based in the analysis of how cp, cat and other tools access the disk
