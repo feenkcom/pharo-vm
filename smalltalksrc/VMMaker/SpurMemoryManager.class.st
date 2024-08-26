@@ -11659,6 +11659,9 @@ SpurMemoryManager >> set: objOop classIndexTo: classIndex formatTo: format [
 { #category : 'accessing' }
 SpurMemoryManager >> setAvoidSearchingSegmentsWithPinnedObjects: aValue [
 
+	<api>
+	<var: #aValue type: #sqInt>
+
 	avoidSearchingSegmentsWithPinnedObjects := aValue
 ]
 
