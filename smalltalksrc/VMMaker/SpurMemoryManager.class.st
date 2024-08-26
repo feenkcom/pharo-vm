@@ -2412,10 +2412,14 @@ SpurMemoryManager >> allocateSlotsForPinningInOldSpace: numSlots bytes: totalByt
 	| chunk newOop |
 
 	chunk := avoidSearchingSegmentsWithPinnedObjects 
-		ifTrue: [ nil ]
-		ifFalse: [self allocateOldSpaceChunkOfBytes: totalBytes
+		ifTrue: 
+			[ self cCode: 'fprintf(stderr, "allocateSlotsForPinning: anywhere\n")'.
+			nil ]
+		ifFalse: 
+			[ self cCode: 'fprintf(stderr, "allocateSlotsForPinning: grouped\n")'.
+			self allocateOldSpaceChunkOfBytes: totalBytes
 				   suchThat: [:f| (segmentManager segmentContainingObj: f) containsPinned]].
-			
+
 	chunk ifNil:
 		[chunk := self allocateOldSpaceChunkOfBytes: totalBytes.
 		 chunk ifNil: [^nil].
