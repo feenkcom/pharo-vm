@@ -13,7 +13,7 @@ EXPORT(sqInt) stackIntegerValue(sqInt offset);
 EXPORT(sqInt) stackObjectValue(sqInt offset);
 EXPORT(sqInt) stackValue(sqInt offset);
 
-sqInt integerObjectOf(sqInt value);
+EXPORT(sqInt) integerObjectOf(sqInt value);
 sqInt integerValueOf(sqInt oop);
 
 EXPORT(sqInt) methodReturnInteger(sqInt integer);
