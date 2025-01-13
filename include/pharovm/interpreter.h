@@ -11,7 +11,7 @@ sqInt stObjectatput(sqInt array, sqInt index, sqInt value);
 
 sqInt stackIntegerValue(sqInt offset);
 sqInt stackObjectValue(sqInt offset);
-sqInt stackValue(sqInt offset);
+EXPORT(sqInt) stackValue(sqInt offset);
 
 sqInt integerObjectOf(sqInt value);
 sqInt integerValueOf(sqInt oop);
