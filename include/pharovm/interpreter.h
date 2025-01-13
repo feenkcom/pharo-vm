@@ -3,6 +3,7 @@
 
 //#include "cogmethod.h"
 #include "interp.h"
+#include "exportDefinition.h"
 
 sqInt stSizeOf(sqInt oop);
 sqInt stObjectat(sqInt array, sqInt index);
@@ -24,7 +25,7 @@ sqInt stSizeOf(sqInt oop);
 sqInt slotSizeOf(sqInt oop);
 
 sqInt isKindOfClass(sqInt, sqInt);
-sqInt instantiateClassindexableSize(sqInt, sqInt);
+EXPORT(sqInt) instantiateClassindexableSize(sqInt, sqInt);
 
 sqInt classExternalAddress(void);
 void * firstIndexableField(sqInt objOop);
@@ -35,8 +36,8 @@ sqInt classString(void);
 sqInt classExternalAddress(void);
 sqInt classFloat(void);
 
-sqInt trueObject(void);
-sqInt falseObject(void);
+EXPORT(sqInt) trueObject(void);
+EXPORT(sqInt) falseObject(void);
 
 sqInt methodArgumentCount(void);
 void pushFloat(double f);
@@ -44,7 +45,7 @@ sqInt pushInteger(sqInt integerValue);
 void push(sqInt object);
 
 sqInt failed(void);
-sqInt primitiveFailFor(sqInt);
+EXPORT(sqInt) primitiveFailFor(sqInt);
 
 sqInt forceInterruptCheck(void);
 sqInt doSignalSemaphoreWithIndex(sqInt semaIndex);
@@ -52,7 +53,7 @@ sqInt getExternalSemaphoreWithIndex(sqInt index);
 void  doWaitSemaphore(sqInt sema);
 void  doWaitSemaphorereEnterInterpreter(sqInt sema, sqInt hasToReenter);
 
-sqInt fetchPointerofObject(sqInt, sqInt);
+EXPORT(sqInt) fetchPointerofObject(sqInt, sqInt);
 
 sqInt stringForCString(const char*);
 
