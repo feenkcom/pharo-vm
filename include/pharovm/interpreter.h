@@ -5,30 +5,30 @@
 #include "interp.h"
 #include "exportDefinition.h"
 
-sqInt stSizeOf(sqInt oop);
-sqInt stObjectat(sqInt array, sqInt index);
-sqInt stObjectatput(sqInt array, sqInt index, sqInt value);
+EXPORT(sqInt) stSizeOf(sqInt oop);
+EXPORT(sqInt) stObjectat(sqInt array, sqInt index);
+EXPORT(sqInt) stObjectatput(sqInt array, sqInt index, sqInt value);
 
-sqInt stackIntegerValue(sqInt offset);
-sqInt stackObjectValue(sqInt offset);
+EXPORT(sqInt) stackIntegerValue(sqInt offset);
+EXPORT(sqInt) stackObjectValue(sqInt offset);
 EXPORT(sqInt) stackValue(sqInt offset);
 
 sqInt integerObjectOf(sqInt value);
 sqInt integerValueOf(sqInt oop);
 
-sqInt methodReturnInteger(sqInt integer);
+EXPORT(sqInt) methodReturnInteger(sqInt integer);
 
 sqInt isPinned(sqInt objOop);
 sqInt isPointers(sqInt oop);
 
-sqInt stSizeOf(sqInt oop);
-sqInt slotSizeOf(sqInt oop);
+EXPORT(sqInt) stSizeOf(sqInt oop);
+EXPORT(sqInt) slotSizeOf(sqInt oop);
 
 sqInt isKindOfClass(sqInt, sqInt);
 EXPORT(sqInt) instantiateClassindexableSize(sqInt, sqInt);
 
 sqInt classExternalAddress(void);
-void * firstIndexableField(sqInt objOop);
+EXPORT(void *) firstIndexableField(sqInt objOop);
 
 sqInt classArray(void);
 sqInt classByteArray(void);
@@ -39,7 +39,7 @@ sqInt classFloat(void);
 EXPORT(sqInt) trueObject(void);
 EXPORT(sqInt) falseObject(void);
 
-sqInt methodArgumentCount(void);
+EXPORT(sqInt) methodArgumentCount(void);
 void pushFloat(double f);
 sqInt pushInteger(sqInt integerValue);
 void push(sqInt object);
