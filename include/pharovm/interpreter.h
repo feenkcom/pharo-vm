@@ -27,7 +27,6 @@ EXPORT(sqInt) slotSizeOf(sqInt oop);
 sqInt isKindOfClass(sqInt, sqInt);
 EXPORT(sqInt) instantiateClassindexableSize(sqInt, sqInt);
 
-sqInt classExternalAddress(void);
 EXPORT(void *) firstIndexableField(sqInt objOop);
 
 EXPORT(sqInt) classArray(void);
