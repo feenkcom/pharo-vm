@@ -30,10 +30,10 @@ EXPORT(sqInt) instantiateClassindexableSize(sqInt, sqInt);
 sqInt classExternalAddress(void);
 EXPORT(void *) firstIndexableField(sqInt objOop);
 
-sqInt classArray(void);
+EXPORT(sqInt) classArray(void);
 sqInt classByteArray(void);
-sqInt classString(void);
-sqInt classExternalAddress(void);
+EXPORT(sqInt) classString(void);
+EXPORT(sqInt) classExternalAddress(void);
 sqInt classFloat(void);
 
 EXPORT(sqInt) trueObject(void);
