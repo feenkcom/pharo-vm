@@ -3,48 +3,48 @@
 
 //#include "cogmethod.h"
 #include "interp.h"
+#include "exportDefinition.h"
 
-sqInt stSizeOf(sqInt oop);
-sqInt stObjectat(sqInt array, sqInt index);
-sqInt stObjectatput(sqInt array, sqInt index, sqInt value);
+EXPORT(sqInt) stSizeOf(sqInt oop);
+EXPORT(sqInt) stObjectat(sqInt array, sqInt index);
+EXPORT(sqInt) stObjectatput(sqInt array, sqInt index, sqInt value);
 
-sqInt stackIntegerValue(sqInt offset);
-sqInt stackObjectValue(sqInt offset);
-sqInt stackValue(sqInt offset);
+EXPORT(sqInt) stackIntegerValue(sqInt offset);
+EXPORT(sqInt) stackObjectValue(sqInt offset);
+EXPORT(sqInt) stackValue(sqInt offset);
 
-sqInt integerObjectOf(sqInt value);
+EXPORT(sqInt) integerObjectOf(sqInt value);
 sqInt integerValueOf(sqInt oop);
 
-sqInt methodReturnInteger(sqInt integer);
+EXPORT(sqInt) methodReturnInteger(sqInt integer);
 
 sqInt isPinned(sqInt objOop);
 sqInt isPointers(sqInt oop);
 
-sqInt stSizeOf(sqInt oop);
-sqInt slotSizeOf(sqInt oop);
+EXPORT(sqInt) stSizeOf(sqInt oop);
+EXPORT(sqInt) slotSizeOf(sqInt oop);
 
 sqInt isKindOfClass(sqInt, sqInt);
-sqInt instantiateClassindexableSize(sqInt, sqInt);
+EXPORT(sqInt) instantiateClassindexableSize(sqInt, sqInt);
 
-sqInt classExternalAddress(void);
-void * firstIndexableField(sqInt objOop);
+EXPORT(void *) firstIndexableField(sqInt objOop);
 
-sqInt classArray(void);
+EXPORT(sqInt) classArray(void);
 sqInt classByteArray(void);
-sqInt classString(void);
-sqInt classExternalAddress(void);
+EXPORT(sqInt) classString(void);
+EXPORT(sqInt) classExternalAddress(void);
 sqInt classFloat(void);
 
-sqInt trueObject(void);
-sqInt falseObject(void);
+EXPORT(sqInt) trueObject(void);
+EXPORT(sqInt) falseObject(void);
 
-sqInt methodArgumentCount(void);
+EXPORT(sqInt) methodArgumentCount(void);
 void pushFloat(double f);
 sqInt pushInteger(sqInt integerValue);
 void push(sqInt object);
 
 sqInt failed(void);
-sqInt primitiveFailFor(sqInt);
+EXPORT(sqInt) primitiveFailFor(sqInt);
 
 sqInt forceInterruptCheck(void);
 sqInt doSignalSemaphoreWithIndex(sqInt semaIndex);
@@ -52,7 +52,7 @@ sqInt getExternalSemaphoreWithIndex(sqInt index);
 void  doWaitSemaphore(sqInt sema);
 void  doWaitSemaphorereEnterInterpreter(sqInt sema, sqInt hasToReenter);
 
-sqInt fetchPointerofObject(sqInt, sqInt);
+EXPORT(sqInt) fetchPointerofObject(sqInt, sqInt);
 
 sqInt stringForCString(const char*);
 

@@ -229,7 +229,11 @@ freeModuleHandle(void *module){
 void *
 getModuleSymbol(void *module, const char *symbol)
 {
+#if defined(__ANDROID__)
+    return dlsym(module ? module: dlopen("PharoVMCore",0), symbol);
+#else
     return dlsym(module ? module: dlopen(NULL,0), symbol);
+#endif
 }
 
 #else
