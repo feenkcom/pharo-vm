@@ -24,7 +24,7 @@ sqInt isPointers(sqInt oop);
 EXPORT(sqInt) stSizeOf(sqInt oop);
 EXPORT(sqInt) slotSizeOf(sqInt oop);
 
-sqInt isKindOfClass(sqInt, sqInt);
+EXPORT(sqInt) isKindOfClass(sqInt, sqInt);
 EXPORT(sqInt) instantiateClassindexableSize(sqInt, sqInt);
 
 EXPORT(void *) firstIndexableField(sqInt objOop);
