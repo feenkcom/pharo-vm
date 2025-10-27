@@ -508,7 +508,7 @@ sqInt checkedIntegerValueOf(sqInt intOop);
 void *fetchArrayofObject(sqInt fieldIndex, sqInt objectPointer);
 double fetchFloatofObject(sqInt fieldIndex, sqInt objectPointer);
 sqInt fetchIntegerofObject(sqInt fieldIndex, sqInt objectPointer);
-double floatValueOf(sqInt floatOop);
+EXPORT(double) floatValueOf(sqInt floatOop);
 sqInt pop(sqInt nItems);
 sqInt pushInteger(sqInt integerValue);
 sqInt sizeOfSTArrayFromCPrimitive(void *cPtr);
