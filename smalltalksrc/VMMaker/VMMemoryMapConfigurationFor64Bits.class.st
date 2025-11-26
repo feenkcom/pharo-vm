@@ -34,6 +34,7 @@ VMMemoryMapConfigurationFor64Bits >> newSpaceInitialAddress [
 VMMemoryMapConfigurationFor64Bits >> oldSpaceInitialAddress [
 
 	"self cppIf: WIN32 ifTrue: [ ^ 16r4C0000000 ""19GB"" ]."
+	self cppIf: __ANDROID__ ifTrue: [ ^ 16r4C0000000 "19GB" ].
 
 	^ 16r10000000000 "1024GB"
 ]
