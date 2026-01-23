@@ -591,10 +591,26 @@ static void sendHandler(sqInt fd, void *data, int flags)
       return;
     }
 
-	pss->waitingToSend = false;
+	// pss->waitingToSend = false;
+	if (flags & AIO_X)
+	{
+	  logTrace("sendHandler(%d): exception while waiting to send\n", fd);
+	  pss->sockError= socketError(fd);
+	  pss->sockState= OtherEndClosed;
+	  pss->waitingToSend = false;
+	  notify(pss, WRITE_NOTIFY);
+	  return;
+	}
 
 	notify(pss, WRITE_NOTIFY);
 	notify(pss, READ_NOTIFY);
+	if (flags & AIO_W)
+	{
+	  /* Avoid READ_NOTIFY here; it can replace the write handler and stall large sends. */
+	  logTrace("sendHandler(%d): write-ready\n", fd);
+	  pss->waitingToSend = false;
+	  notify(pss, WRITE_NOTIFY);
+	}
 }
 
 /* read data transfer is now possible for the socket. */
