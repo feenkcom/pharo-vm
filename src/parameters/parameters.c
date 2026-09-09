@@ -3,7 +3,13 @@
 #include "pharovm/debug.h"
 #include "pharovm/pathUtilities.h"
 #include <assert.h>
-#include <unistd.h>
+#if defined(_WIN32)
+#  include <io.h>       /* e.g. _access, _read, _write */
+#  include <process.h>  /* e.g. _getpid */
+#  include <windows.h>  /* e.g. Sleep */
+#else
+#  include <unistd.h>
+#endif
 
 typedef VMErrorCode (*vm_parameter_process_function)(const char *argument, VMParameters* params);
 
