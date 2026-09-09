@@ -13,15 +13,15 @@
 
 #include "sq.h"
 
-typedef struct {
-  char *pluginName;
-  char *primitiveName; /* N.B. On Spur the accessorDepth is hidden after this */
-  void *primitiveAddress;
-} sqExport;
-
 #include "pharovm/sqNamedPrims.h"
 #include "pharovm/debug.h"
 
+sqExport *pluginExports[] = {
+	vm_exports,
+	os_exports,
+//	SecurityPlugin_exports,
+	NULL
+};
 
 typedef struct ModuleEntry {
 	struct ModuleEntry *next;

@@ -50,7 +50,7 @@ void ioInitExternalSemaphores(void);
 
 void ceCheckForInterrupts(void);
 
-sqInt nilObject(void);
+EXPORT(sqInt) nilObject(void);
 
 EXPORT(long long) getVMGMTOffset();
 
